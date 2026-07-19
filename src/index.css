@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 330 100% 99%;
+    --foreground: 238 36% 24%;
+    --card: 0 0% 100%;
+    --card-foreground: 238 36% 24%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 238 36% 24%;
+    --primary: 335 76% 62%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 330 100% 96%;
+    --secondary-foreground: 238 40% 32%;
+    --muted: 330 60% 96%;
+    --muted-foreground: 240 14% 50%;
+    --accent: 238 70% 96%;
+    --accent-foreground: 238 45% 40%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 330 40% 92%;
+    --input: 330 40% 92%;
+    --ring: 335 76% 62%;
+    --radius: 1rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+      "Noto Sans SC", system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
+  ::selection {
+    background: #f27dab;
+    color: #fff;
+  }
+}
+
+/* ---------- Sakimu theme tokens ---------- */
+:root {
+  --sakura: #f27dab;
+  --sakura-deep: #e2548f;
+  --sakura-soft: #fad6e6;
+  --indigo: #4b4e9b;
+  --indigo-deep: #2e3060;
+  --lavender: #8b8fd0;
+}
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(100deg, #e2548f 10%, #8b5fbf 55%, #4b4e9b 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .bg-grid-sakura {
+    background-image: radial-gradient(circle at 1px 1px, rgba(242, 125, 171, 0.14) 1px, transparent 0);
+    background-size: 28px 28px;
+  }
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes floaty {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(3deg); }
+}
+@keyframes blob-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(24px, -30px) scale(1.08); }
+  66% { transform: translate(-20px, 18px) scale(0.95); }
+}
+@keyframes petal-fall {
+  0% { transform: translateY(-8vh) translateX(0) rotate(0deg); opacity: 0; }
+  8% { opacity: 0.9; }
+  50% { transform: translateY(46vh) translateX(4vw) rotate(200deg); }
+  100% { transform: translateY(105vh) translateX(-3vw) rotate(420deg); opacity: 0; }
+}
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(242, 125, 171, 0.35); }
+  50% { box-shadow: 0 0 0 14px rgba(242, 125, 171, 0); }
+}
+
+.animate-floaty { animation: floaty 6s ease-in-out infinite; }
+.animate-blob { animation: blob-drift 14s ease-in-out infinite; }
+.animate-marquee { animation: marquee-x 28s linear infinite; }
+.animate-spin-slower { animation: spin-slow 24s linear infinite; }
+.animate-pulse-glow { animation: pulse-glow 2.6s ease-out infinite; }
+
+.petal {
+  position: absolute;
+  top: -10vh;
+  border-radius: 80% 0 80% 0;
+  background: linear-gradient(135deg, #f9b8d2, #f27dab);
+  opacity: 0;
+  animation: petal-fall linear infinite;
+  pointer-events: none;
+}
+
+/* ---------- Scroll reveal ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-floaty, .animate-blob, .animate-marquee, .animate-spin-slower, .petal {
+    animation: none !important;
+  }
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
