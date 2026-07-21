@@ -63,6 +63,16 @@ export default function Footer() {
           <p className="mt-8 text-center text-xs leading-relaxed text-white/40">
             © 2026 长丰咲梦信息科技工作室 · 用代码创造美好未来 ✿
           </p>
+          <p className="mt-3 text-center text-xs leading-relaxed text-white/30">
+            <a
+              href="https://beian.miit.gov.cn/"
+              target="_blank"
+              rel="noreferrer"
+              className="transition-colors hover:text-white/60"
+            >
+              皖ICP备2026022746号-1
+            </a>
+          </p>
         </div>
       </div>
     </footer>
