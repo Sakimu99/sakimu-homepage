@@ -63,7 +63,7 @@ export default function Footer() {
           <p className="mt-8 text-center text-xs leading-relaxed text-white/40">
             © 2026 长丰咲梦信息科技工作室 · 用代码创造美好未来 ✿
           </p>
-          <p className="mt-3 text-center text-xs leading-relaxed text-white/30">
+          <p className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-center text-xs leading-relaxed text-white/30">
             <a
               href="https://beian.miit.gov.cn/"
               target="_blank"
@@ -71,6 +71,22 @@ export default function Footer() {
               className="transition-colors hover:text-white/60"
             >
               皖ICP备2026022746号-1
+            </a>
+            <a
+              href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=34012102000965"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 transition-colors hover:text-white/60"
+            >
+              <svg
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="h-3.5 w-3.5"
+                aria-hidden
+              >
+                <path d="M10 1l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V4l7-3zm0 4a3 3 0 100 6 3 3 0 000-6z" />
+              </svg>
+              皖公网安备34012102000965号
             </a>
           </p>
         </div>
