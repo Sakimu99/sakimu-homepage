@@ -1,4 +1,4 @@
-import { ArrowUpRight, Flower2, Store } from 'lucide-react'
+import { ArrowUpRight, Flower2, Mail, Store } from 'lucide-react'
 
 export default function Footer() {
   return (
@@ -29,6 +29,13 @@ export default function Footer() {
               <Store className="h-4 w-4" />
               来店里聊聊合作
               <ArrowUpRight className="h-4 w-4" />
+            </a>
+            <a
+              href="mailto:Sakimu99@qq.com"
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-8 py-3.5 text-sm font-bold text-white/80 transition-colors hover:border-[#f27dab] hover:text-[#f9b8d2]"
+            >
+              <Mail className="h-4 w-4" />
+              Sakimu99@qq.com
             </a>
             <a
               href="#top"
