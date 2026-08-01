@@ -45,7 +45,7 @@ export default function Footer() {
                 className="h-10 w-10 rounded-full bg-white/90 object-cover p-0.5"
               />
               <div>
-                <div className="text-sm font-bold">长丰咲梦信息科技工作室</div>
+                <div className="text-sm font-bold">咲梦信息科技工作室</div>
                 <div className="text-xs text-white/50">SAKIMU TECH STUDIO</div>
               </div>
             </div>
@@ -59,7 +59,7 @@ export default function Footer() {
           </div>
 
           <p className="mt-8 text-center text-xs leading-relaxed text-white/40">
-            © 2026 长丰咲梦信息科技工作室 · 用代码创造美好未来 ✿
+            © 2026 咲梦信息科技工作室 · 用代码创造美好未来 ✿
           </p>
           <p className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-center text-xs leading-relaxed text-white/30">
             <a

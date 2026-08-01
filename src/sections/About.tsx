@@ -37,7 +37,7 @@ export default function About() {
               做点<span className="text-gradient">认真的东西</span>
             </h2>
             <p className="mt-6 text-sm leading-loose text-[#5b5e8f] md:text-base">
-              <span className="font-bold text-[#2e3060]">长丰咲梦信息科技工作室</span>
+              <span className="font-bold text-[#2e3060]">咲梦信息科技工作室</span>
               成立于 2026 年，是一家以软件开发为主营业务的年轻工作室。
               「咲」是花开的声音，也是笑容的样子——我们相信好的软件应该像樱花一样，
               既有让人心动的美感，也有扎实可靠的力量。
