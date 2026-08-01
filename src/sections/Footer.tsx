@@ -1,4 +1,4 @@
-import { ArrowUpRight, Flower2, Mail, Store } from 'lucide-react'
+import { Flower2, Mail } from 'lucide-react'
 
 export default function Footer() {
   return (
@@ -21,18 +21,8 @@ export default function Footer() {
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <a
-              href="https://shop.pinduoduo.com/TqwmLEsw"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#f27dab] to-[#8b5fbf] px-8 py-3.5 text-sm font-bold text-white shadow-lg shadow-pink-500/30 transition-transform hover:scale-105"
-            >
-              <Store className="h-4 w-4" />
-              来店里聊聊合作
-              <ArrowUpRight className="h-4 w-4" />
-            </a>
-            <a
               href="mailto:Sakimu99@qq.com"
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-8 py-3.5 text-sm font-bold text-white/80 transition-colors hover:border-[#f27dab] hover:text-[#f9b8d2]"
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#f27dab] to-[#8b5fbf] px-8 py-3.5 text-sm font-bold text-white shadow-lg shadow-pink-500/30 transition-transform hover:scale-105"
             >
               <Mail className="h-4 w-4" />
               Sakimu99@qq.com
@@ -64,6 +54,7 @@ export default function Footer() {
               <a href="#services" className="transition-colors hover:text-[#f9b8d2]">服务</a>
               <a href="#process" className="transition-colors hover:text-[#f9b8d2]">流程</a>
               <a href="#about" className="transition-colors hover:text-[#f9b8d2]">关于</a>
+              <a href="#faq" className="transition-colors hover:text-[#f9b8d2]">FAQ</a>
             </nav>
           </div>
 

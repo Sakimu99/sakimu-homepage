@@ -5,6 +5,7 @@ const LINKS = [
   { href: '#services', label: '服务' },
   { href: '#process', label: '流程' },
   { href: '#about', label: '关于' },
+  { href: '#faq', label: 'FAQ' },
   { href: '#contact', label: '联系' },
 ]
 
