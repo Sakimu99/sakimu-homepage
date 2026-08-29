@@ -40,7 +40,7 @@ export default function Footer() {
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="flex items-center gap-3">
               <img
-                src="./assets/logo-transparent.png"
+                src="./assets/logo-transparent.webp"
                 alt="咲梦 Logo"
                 className="h-10 w-10 rounded-full bg-white/90 object-cover p-0.5"
               />

@@ -76,7 +76,7 @@ export default function Hero() {
           <div className="animate-spin-slower absolute left-1/2 top-1/2 h-[22rem] w-[22rem] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-dashed border-pink-300/60 sm:h-[26rem] sm:w-[26rem]" />
           <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-tr from-pink-300/50 via-purple-200/40 to-indigo-200/50 blur-2xl sm:h-80 sm:w-80" />
           <img
-            src="./assets/logo-transparent.png"
+            src="./assets/logo-transparent.webp"
             alt="咲梦信息科技工作室 Logo"
             className="animate-floaty relative mx-auto w-64 drop-shadow-2xl sm:w-80 md:w-[24rem]"
           />
