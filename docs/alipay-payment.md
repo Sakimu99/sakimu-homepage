@@ -7,12 +7,13 @@
 | 项 | 值 |
 | --- | --- |
 | 线上应用 | APPID `2021007103657649`（应用名 `OpenApp_042173_HNOk`，状态**已上线**） |
-| 已开通能力 | **电脑网站支付（已生效）** |
+| 已开通能力 | **电脑网站支付**（已生效）、**手机网站支付**（已开通，费率 0.6%） |
 | 接口加签方式 | 公钥模式 / RSA2（应用公钥指纹 `b8b625c9…`，支付宝公钥指纹 `55379c7c…`） |
 | 网关 | `https://openapi.alipay.com/gateway.do` |
 | 站点 | <https://sakimu.cn>（Cloudflare Pages 项目 `sakimu-homepage`，apex 已代理） |
 | 支付后端 | Pages Functions（`functions/api/[[path]].js`）+ KV `sakimu-orders`（`323e71d54f644c789c8eb9e67cfce17f`） |
 | 金额 | 固定 `5.00` 元，服务端配置，前端不可改 |
+| 移动端收银台 | `ALIPAY_MOBILE_METHOD=wap` → 手机走手机网站支付，自动唤起支付宝 App |
 | 回执地址 | `https://sakimu.cn/api/alipay/notify`、`https://sakimu.cn/api/alipay/return` |
 | 运营后台 | <https://sakimu.cn/deposit/admin>（口令为 `ADMIN_TOKEN`，见本地 `.env`） |
 
@@ -122,6 +123,7 @@ wrangler pages secret list  --project-name sakimu-homepage   # 核对
 | `DEPOSIT_AMOUNT` | 否 | 定金金额，默认 `5.00` |
 | `DEPOSIT_SUBJECT` | 否 | 订单标题（避免 `/ = &` 等特殊字符） |
 | `DEPOSIT_TIMEOUT` | 否 | 相对超时，默认 `30m`，超时支付宝侧自动关单 |
+| `ALIPAY_MOBILE_METHOD` | 否 | 移动端收银台：`wap`（默认，唤起 App）/ `page`（回退） |
 
 密钥三种写法都支持：单行 Base64、带 `\n` 转义的 PEM、真实多行 PEM（引号包裹）。
 
@@ -200,14 +202,16 @@ Nginx 反代与 systemd 单元示例见仓库 README 历史版本或直接：
 
    | 取值 | 手机上的行为 | 前提 |
    | --- | --- | --- |
-   | `page`（当前默认） | 电脑网站支付收银台：扫码 / 账户密码登录 | 已签约电脑网站支付 |
-   | `wap` | 手机网站支付 `alipay.trade.wap.pay` / `QUICK_WAP_WAY`，自动唤起支付宝 App | **需先签约「手机网站支付」** |
+   | `page`（回退） | 电脑网站支付收银台：扫码 / 账户密码登录 | 已签约电脑网站支付 |
+   | `wap`（**当前默认**） | 手机网站支付 `alipay.trade.wap.pay` / `QUICK_WAP_WAY`，自动唤起支付宝 App | 手机网站支付已开通 |
 
-   签约后只需把 `wrangler.toml` 的 `ALIPAY_MOBILE_METHOD` 改成 `wap` 并 push，代码无需改动
-   （服务端按 UA 自动选择；`shared/alipay-core.js` 里 `PAY_METHODS` 定义两种收银台）。
+   线上已切到 `wap`：服务端按 UA 自动选择（`shared/alipay-core.js` 的 `PAY_METHODS` 定义两种收银台），
+   需要回退时把 `wrangler.toml` 的 `ALIPAY_MOBILE_METHOD` 改回 `page` 并 push 即可。
    订单会记录 `pay_method`，后台列表可直接看到这笔单走的哪种收银台。
 
-> 未签约就切到 `wap`，手机上会落到支付宝的「无权限」页，所以默认保持 `page`。
+> 实测（2026-10-25）：iPhone UA 下 `alipay.trade.wap.pay` 落到 `mclient.alipay.com/h5pay/...`，
+> 页面显示「打开支付宝APP付款 / 下载支付宝APP付款」，订单标题与金额正确，`quit_url` 生效。
+> 若产品未开通就切 `wap`，手机上会落到支付宝的「无权限」页——回退 `page` 即可。
 
 
 ---
@@ -357,7 +361,8 @@ node -e "const{config}=await import('./server/config.mjs');const a=await import(
 | 页面 404 | 前端路由未回落 | `_routes.json` + `_redirects` 已处理；静态托管需保留两者 |
 | **付款成功但后台没有这单** | ①订单记录被删/存储故障；②notify 未到且页面已关 | 先到商家平台查商户订单号，再用 `alipay.trade.query` 核对，最后按 8.7 补录；新版已支持通知自动补录 |
 | 后台点退款报「订单不存在」 | 该单记录不在 KV（见上一行） | 先补录订单再退款；或直接用支付宝交易号在商家平台退款 |
-| 手机上提示不支持 / 收银台体验差 | 走的是电脑网站支付收银台 | 签约手机网站支付后把 `ALIPAY_MOBILE_METHOD` 设为 `wap` |
+| 手机端打开支付宝提示无权限 / 无法支付 | 手机网站支付未开通，或误切了 `wap` | 确认产品已开通；临时回退 `ALIPAY_MOBILE_METHOD=page` |
+| 手机端没唤起支付宝 App | 走的是 `page` 收银台，或用户未安装 App | 正常现象，页面会提示下载/网页登录；切 `wap` 即可唤起 |
 | 手机输入框聚焦时页面被放大 | iOS Safari 对 <16px 输入框自动缩放 | 已用 `text-base sm:text-sm` 规避 |
 | **国内部分网络访问超时** | `sakimu.cn` 解析到 172.67/104.21 段，实测该网络下约 50% 丢包；`*.pages.dev`（172.66 段）正常 | 换网络/代理可复测；若面向国内用户需长期稳定，建议把站点与支付服务迁到国内服务器（`www` 已指向腾讯云 106.53.138.57） |
 | KV 读到旧状态 | KV 最终一致（跨地域最多约 60 秒） | 结果页会持续轮询；关键状态以 `trade.query` 为准 |
@@ -371,5 +376,5 @@ node -e "const{config}=await import('./server/config.mjs');const a=await import(
 - 后台是单口令模式，没有多用户与操作审计（`order.events` 记录了本地动作流水）。
 - 未校验支付宝**响应**签名字段（`sign`），仅校验业务 `code`；如需强校验可扩展 `execute()`。
 - 补录出来的订单不含买家姓名与联系方式（这两项从未传给支付宝），只能靠交易号人工核对。
-- 手机网站支付（`alipay.trade.wap.pay`）代码已就绪但**尚未签约**，线上默认走电脑网站支付收银台。
+- 手机网站支付按 0.6% 计费（移动端交易），电脑网站支付按 0.54%（当前实测）。
 - 未做应用层限流（Cloudflare 侧可用 WAF Rate Limiting 规则兜底）。

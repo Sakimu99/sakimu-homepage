@@ -42,13 +42,17 @@ const run = (a) => spawnSync(process.execPath, [WRANGLER, ...a], { encoding: 'ut
 const listKeys = () =>
   JSON.parse(run(['kv', 'key', 'list', '--namespace-id', namespaceId, '--remote']).stdout || '[]')
 
+/**
+ * 读取订单：返回 { order } 或 { error }。
+ * 关键：读不出来 ≠ 不存在。读失败必须当「受保护」，否则会把真实订单误判成未知再删掉。
+ */
 const getOrder = (outTradeNo) => {
   const res = run(['kv', 'key', 'get', `order:${outTradeNo}`, '--namespace-id', namespaceId, '--remote'])
-  if (res.status !== 0) return null
+  if (res.status !== 0) return { error: (res.stderr || '').trim().slice(0, 80) || '命令失败' }
   try {
-    return JSON.parse(res.stdout)
+    return { order: JSON.parse(res.stdout) }
   } catch {
-    return null
+    return { error: '值不是合法 JSON' }
   }
 }
 
@@ -72,14 +76,32 @@ const skipped = []
 for (const key of matched) {
   const isOrder = key.name.startsWith('order:')
   const no = isOrder ? key.name.slice('order:'.length) : key.name.slice(key.name.lastIndexOf(':') + 1)
-  const order = orders.get(`order:${no}`)
-  const status = order?.status ?? 'UNKNOWN'
-  if (!isOrder && PAID_LIKE.has(status)) {
-    skipped.push({ key: key.name, reason: `索引键属于已支付订单（${status}）` })
+  const fetched = isOrder ? orders.get(key.name) : orders.get(`order:${no}`)
+
+  // 订单读不出来 → 一律保护，绝不进删除列表
+  if (!fetched || fetched.error) {
+    skipped.push({ key: key.name, reason: `订单无法确认（${fetched?.error ?? '缺少订单键'}），已保护` })
     continue
   }
-  if (isOrder && PAID_LIKE.has(status) && !force) {
-    skipped.push({ key: key.name, reason: `已支付订单（${status}），需 --force` })
+
+  const order = fetched.order
+  const status = order?.status ?? 'UNKNOWN'
+  if (PAID_LIKE.has(status)) {
+    if (!isOrder && !force) {
+      skipped.push({ key: key.name, reason: `索引键属于已支付订单（${status}）` })
+      continue
+    }
+    if (isOrder && !force) {
+      skipped.push({ key: key.name, reason: `已支付订单（${status}），需 --force` })
+      continue
+    }
+    if (!force) {
+      skipped.push({ key: key.name, reason: `已支付订单（${status}），需 --force` })
+      continue
+    }
+  }
+  if (status === 'UNKNOWN') {
+    skipped.push({ key: key.name, reason: '订单状态未知，已保护' })
     continue
   }
   willDelete.push({ key: key.name, status, amount: order?.amount ?? '-' })
