@@ -80,6 +80,8 @@ wrangler pages secret put ADMIN_TOKEN        --project-name sakimu-homepage
 
 - **金额固定 `¥5.00`**，由服务端配置决定，前端传的金额一律忽略。
 - 支付成功以**异步通知 + 主动查询**为准，不依赖同步跳转。
+- **手机端**：布局与输入体验已适配（表单前置、16px 输入框防缩放、无横向溢出）；收银台按 UA 选择，
+  `ALIPAY_MOBILE_METHOD=page|wap`（默认 `page`；签约「手机网站支付」后改 `wap` 即可自动唤起支付宝 App）。
 - 完整接入手册：[`docs/alipay-payment.md`](docs/alipay-payment.md)（签约状态、密钥指纹、KV、沙箱联调、排障表）。
 
 ### 页面与接口
