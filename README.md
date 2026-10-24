@@ -82,7 +82,8 @@ wrangler pages secret put ADMIN_TOKEN        --project-name sakimu-homepage
 - 支付成功以**异步通知 + 主动查询**为准，不依赖同步跳转。
 - **手机端**：布局与输入体验已适配（表单前置、16px 输入框防缩放、无横向溢出）；收银台按 UA 选择，
   `ALIPAY_MOBILE_METHOD=page|wap`（默认 `page`；签约「手机网站支付」后改 `wap` 即可自动唤起支付宝 App）。
-- 完整接入手册：[`docs/alipay-payment.md`](docs/alipay-payment.md)（签约状态、密钥指纹、KV、沙箱联调、排障表）。
+- 接入手册：[`docs/alipay-integration-manual.md`](docs/alipay-integration-manual.md)（从建应用到收钱的完整流程、签名规则、验收与排障）
+- 运维手册：[`docs/alipay-payment.md`](docs/alipay-payment.md)（当前状态、密钥指纹、KV、清理纪律、通知补录）
 
 ### 页面与接口
 
