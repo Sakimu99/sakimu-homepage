@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "description": "只有 /api/* 走 Pages Functions，其余全部按静态资源 + SPA 兜底处理",
+  "include": ["/api/*"],
+  "exclude": []
+}

@@ -1,0 +1,3 @@
+# 纯静态部署（无 Node 支付服务）时，保证 /deposit/result 等前端路由不 404。
+# 注意：在线支付必须由 server/index.mjs 提供 /api/*，静态托管下这些接口不可用。
+/*    /index.html   200

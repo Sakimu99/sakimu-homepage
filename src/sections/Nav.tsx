@@ -4,6 +4,7 @@ import { Menu, X, Sparkles } from 'lucide-react'
 const LINKS = [
   { href: '#services', label: '服务' },
   { href: '#process', label: '流程' },
+  { href: '#deposit', label: '预定' },
   { href: '#about', label: '关于' },
   { href: '#faq', label: 'FAQ' },
   { href: '#contact', label: '联系' },
@@ -36,7 +37,7 @@ export default function Nav() {
         >
           <a href="#top" className="flex items-center gap-2.5">
             <img
-              src="./assets/logo-transparent.webp"
+              src="/assets/logo-transparent.webp"
               alt="咲梦 Logo"
               className="h-9 w-9 rounded-full object-cover ring-2 ring-pink-200"
             />

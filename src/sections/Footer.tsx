@@ -40,7 +40,7 @@ export default function Footer() {
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="flex items-center gap-3">
               <img
-                src="./assets/logo-transparent.webp"
+                src="/assets/logo-transparent.webp"
                 alt="咲梦 Logo"
                 className="h-10 w-10 rounded-full bg-white/90 object-cover p-0.5"
               />
@@ -53,6 +53,7 @@ export default function Footer() {
             <nav className="flex gap-6 text-xs text-white/60">
               <a href="#services" className="transition-colors hover:text-[#f9b8d2]">服务</a>
               <a href="#process" className="transition-colors hover:text-[#f9b8d2]">流程</a>
+              <a href="#deposit" className="transition-colors hover:text-[#f9b8d2]">预定</a>
               <a href="#about" className="transition-colors hover:text-[#f9b8d2]">关于</a>
               <a href="#faq" className="transition-colors hover:text-[#f9b8d2]">FAQ</a>
             </nav>

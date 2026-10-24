@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ---- 支付服务：本地配置与订单数据（含应用私钥 / 客户信息，禁止提交）----
+.env
+.env.local
+data/
+.dev.vars
+.dev.vars.*
+.wrangler/
+.playwright-mcp/

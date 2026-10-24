@@ -1,0 +1,24 @@
+# Cloudflare Pages 项目配置（绑定与公开变量通过本文件管理）
+# 部署：push 到 GitHub main 分支后由 Pages 自动构建（构建命令 npm run build，输出 dist）
+name = "sakimu-homepage"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-07-19"
+
+# 公开变量（不含任何密钥）
+[vars]
+PUBLIC_BASE_URL = "https://sakimu.cn"
+ALIPAY_ENV = "prod"
+ALIPAY_APP_ID = "2021007103657649"
+ALIPAY_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiXVLDddXL4Q7vxl5l4EpLRv9x3VquAzeKBcx9XHXiKAgSebM+GSspCOJB1qlfrVM9slznR6pgkYsmDx195A3mU+s6FGC2uGkNjR9s7brajYxHdupeOky/NE5AlNLojJ00Px4bMKeDML9OTp6md42ptg5k7sV4nNftcykpbWFwLGoy/c4D5tzWYqdm5rSlKKF6wcgWev3BpkG6MRUP+/kartoXhljgTvftHIhwp9B4lF0Bg10CwHpvyvj3ihi4fAaj2M+hANkqw5i/QnixlKTRQjs7AK7I668uR+EaMgRTIen6fKVXO56Cq+3/EE+xrlm/dpPMg+Y1uM/RcjuSlwE7wIDAQAB"
+DEPOSIT_AMOUNT = "10.00"
+DEPOSIT_SUBJECT = "咲梦工作室 · 项目预定定金"
+DEPOSIT_TIMEOUT = "30m"
+
+# 订单存储：/api/* 的 Pages Functions 通过 env.ORDERS 读写
+[[kv_namespaces]]
+binding = "ORDERS"
+id = "323e71d54f644c789c8eb9e67cfce17f"
+
+# 机密（用 wrangler 写入，不落仓库）：
+#   wrangler pages secret put ALIPAY_PRIVATE_KEY --project-name sakimu-homepage
+#   wrangler pages secret put ADMIN_TOKEN        --project-name sakimu-homepage
