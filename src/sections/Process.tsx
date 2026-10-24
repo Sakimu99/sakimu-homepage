@@ -7,7 +7,7 @@ type Step = {
   desc: string
 }
 
-const STEPS: Step[] = [
+export const STEPS: Step[] = [
   { icon: MessagesSquare, title: '需求沟通', desc: '聊聊你的想法，我们帮你把它翻译成清晰的产品需求。' },
   { icon: PenTool, title: '方案设计', desc: '输出原型与 UI 设计稿，确认每一分钱的去向。' },
   { icon: Code2, title: '敏捷开发', desc: '小步快跑、阶段可见，随时能看到产品在长大。' },

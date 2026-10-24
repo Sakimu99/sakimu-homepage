@@ -89,6 +89,7 @@ wrangler pages secret put ADMIN_TOKEN        --project-name sakimu-homepage
 | 路径 | 作用 |
 | --- | --- |
 | `/#deposit` | 首页「预定定金」区块：填联系方式 → 支付 ¥5 |
+| `/contact` | 联系我们二级页：邮件通道、¥5 定金入口、回复时效、材料清单、流程与 FAQ 速览 |
 | `/deposit/result?out_trade_no=…` | 支付结果页，自动轮询 / 主动查询 |
 | `/deposit/admin` | 运营后台：查单、同步、关单、退款、对账下载 |
 
@@ -129,5 +130,6 @@ npm run cf:selftest   # Cloudflare 运行时 22 项（含 KV 往返、验签、S
 | 关于工作室 | `src/sections/About.tsx` |
 | 常见问题 | `src/sections/Faq.tsx` |
 | 联系 & 页脚 | `src/sections/Footer.tsx` |
+| 联系我们页面 | `src/pages/Contact.tsx` |
 
 Logo 资源在 `public/assets/`。改文案直接改对应区块文件即可。

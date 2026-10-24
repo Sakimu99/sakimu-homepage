@@ -1,18 +1,22 @@
 import { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router'
 import { Menu, X, Sparkles } from 'lucide-react'
 
-const LINKS = [
-  { href: '#services', label: '服务' },
-  { href: '#process', label: '流程' },
-  { href: '#deposit', label: '预定' },
-  { href: '#about', label: '关于' },
-  { href: '#faq', label: 'FAQ' },
-  { href: '#contact', label: '联系' },
+/** 首页内的锚点区块 */
+const SECTION_LINKS = [
+  { hash: '#services', label: '服务' },
+  { hash: '#process', label: '流程' },
+  { hash: '#deposit', label: '预定' },
+  { hash: '#about', label: '关于' },
+  { hash: '#faq', label: 'FAQ' },
 ]
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const { pathname } = useLocation()
+  const isHome = pathname === '/'
+  const onContact = pathname === '/contact'
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -20,6 +24,10 @@ export default function Nav() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  useEffect(() => {
+    setOpen(false)
+  }, [pathname])
 
   return (
     <header
@@ -35,34 +43,76 @@ export default function Nav() {
               : 'bg-white/40 backdrop-blur-md'
           }`}
         >
-          <a href="#top" className="flex items-center gap-2.5">
-            <img
-              src="/assets/logo-transparent.webp"
-              alt="咲梦 Logo"
-              className="h-9 w-9 rounded-full object-cover ring-2 ring-pink-200"
-            />
-            <span className="text-lg font-bold tracking-wide text-[#2e3060]">
-              咲梦<span className="ml-1 hidden text-sm font-medium text-[#8b8fd0] sm:inline">SAKIMU TECH</span>
-            </span>
-          </a>
+          {isHome ? (
+            <a href="#top" className="flex items-center gap-2.5">
+              <img
+                src="/assets/logo-transparent.webp"
+                alt="咲梦 Logo"
+                className="h-9 w-9 rounded-full object-cover ring-2 ring-pink-200"
+              />
+              <span className="text-lg font-bold tracking-wide text-[#2e3060]">
+                咲梦<span className="ml-1 hidden text-sm font-medium text-[#8b8fd0] sm:inline">SAKIMU TECH</span>
+              </span>
+            </a>
+          ) : (
+            <Link to="/" className="flex items-center gap-2.5">
+              <img
+                src="/assets/logo-transparent.webp"
+                alt="咲梦 Logo"
+                className="h-9 w-9 rounded-full object-cover ring-2 ring-pink-200"
+              />
+              <span className="text-lg font-bold tracking-wide text-[#2e3060]">
+                咲梦<span className="ml-1 hidden text-sm font-medium text-[#8b8fd0] sm:inline">SAKIMU TECH</span>
+              </span>
+            </Link>
+          )}
 
           <div className="hidden items-center gap-1 md:flex">
-            {LINKS.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                className="rounded-full px-4 py-2 text-sm font-medium text-[#4b4e9b] transition-colors hover:bg-pink-50 hover:text-[#e2548f]"
-              >
-                {l.label}
-              </a>
-            ))}
-            <a
-              href="#contact"
-              className="ml-2 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#f27dab] to-[#8b5fbf] px-5 py-2 text-sm font-semibold text-white shadow-md shadow-pink-200 transition-transform hover:scale-105"
+            {SECTION_LINKS.map((l) =>
+              isHome ? (
+                <a
+                  key={l.hash}
+                  href={l.hash}
+                  className="rounded-full px-4 py-2 text-sm font-medium text-[#4b4e9b] transition-colors hover:bg-pink-50 hover:text-[#e2548f]"
+                >
+                  {l.label}
+                </a>
+              ) : (
+                <Link
+                  key={l.hash}
+                  to={`/${l.hash}`}
+                  className="rounded-full px-4 py-2 text-sm font-medium text-[#4b4e9b] transition-colors hover:bg-pink-50 hover:text-[#e2548f]"
+                >
+                  {l.label}
+                </Link>
+              ),
+            )}
+            <Link
+              to="/contact"
+              aria-current={onContact ? 'page' : undefined}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors hover:bg-pink-50 hover:text-[#e2548f] ${
+                onContact ? 'bg-pink-50 text-[#e2548f]' : 'text-[#4b4e9b]'
+              }`}
             >
-              <Sparkles className="h-4 w-4" />
-              开始合作
-            </a>
+              联系
+            </Link>
+            {isHome ? (
+              <a
+                href="#deposit"
+                className="ml-2 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#f27dab] to-[#8b5fbf] px-5 py-2 text-sm font-semibold text-white shadow-md shadow-pink-200 transition-transform hover:scale-105"
+              >
+                <Sparkles className="h-4 w-4" />
+                开始合作
+              </a>
+            ) : (
+              <Link
+                to="/#deposit"
+                className="ml-2 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#f27dab] to-[#8b5fbf] px-5 py-2 text-sm font-semibold text-white shadow-md shadow-pink-200 transition-transform hover:scale-105"
+              >
+                <Sparkles className="h-4 w-4" />
+                开始合作
+              </Link>
+            )}
           </div>
 
           <button
@@ -76,16 +126,36 @@ export default function Nav() {
 
         {open && (
           <div className="mt-2 rounded-3xl bg-white/95 p-3 shadow-xl shadow-pink-100 backdrop-blur-xl md:hidden">
-            {LINKS.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                onClick={() => setOpen(false)}
-                className="block rounded-2xl px-4 py-3 text-sm font-medium text-[#4b4e9b] hover:bg-pink-50"
-              >
-                {l.label}
-              </a>
-            ))}
+            {SECTION_LINKS.map((l) =>
+              isHome ? (
+                <a
+                  key={l.hash}
+                  href={l.hash}
+                  onClick={() => setOpen(false)}
+                  className="block rounded-2xl px-4 py-3 text-sm font-medium text-[#4b4e9b] hover:bg-pink-50"
+                >
+                  {l.label}
+                </a>
+              ) : (
+                <Link
+                  key={l.hash}
+                  to={`/${l.hash}`}
+                  onClick={() => setOpen(false)}
+                  className="block rounded-2xl px-4 py-3 text-sm font-medium text-[#4b4e9b] hover:bg-pink-50"
+                >
+                  {l.label}
+                </Link>
+              ),
+            )}
+            <Link
+              to="/contact"
+              onClick={() => setOpen(false)}
+              className={`block rounded-2xl px-4 py-3 text-sm font-medium hover:bg-pink-50 ${
+                onContact ? 'text-[#e2548f]' : 'text-[#4b4e9b]'
+              }`}
+            >
+              联系
+            </Link>
           </div>
         )}
       </div>

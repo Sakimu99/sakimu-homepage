@@ -5,7 +5,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 
-const FAQS = [
+export const FAQS = [
   {
     q: '怎么收费？大概什么价位？',
     a: '按项目报价，不搞按时计费的黑盒。需求聊清楚后，我们会拆分功能模块给出明细化报价单，签确认后再开工。小工具类项目通常千元级起步，完整应用根据复杂度评估，过程中绝无隐藏费用。',

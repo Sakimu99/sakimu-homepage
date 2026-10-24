@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router'
 import Home from './pages/Home'
 import DepositResult from './pages/DepositResult'
 import Admin from './pages/Admin'
+import Contact from './pages/Contact'
 
 /** 路由切换时把带 hash 的跳转（如 /#deposit）真正滚动到目标区块 */
 function HashScroll() {
@@ -26,6 +27,7 @@ export default function App() {
       <HashScroll />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/deposit/result" element={<DepositResult />} />
         <Route path="/deposit/admin" element={<Admin />} />
         <Route path="*" element={<Home />} />

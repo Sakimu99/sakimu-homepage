@@ -1,6 +1,18 @@
+import { Link, useLocation } from 'react-router'
 import { Flower2, Mail } from 'lucide-react'
 
+const NAV = [
+  { hash: '#services', label: '服务' },
+  { hash: '#process', label: '流程' },
+  { hash: '#deposit', label: '预定' },
+  { hash: '#about', label: '关于' },
+  { hash: '#faq', label: 'FAQ' },
+]
+
 export default function Footer() {
+  const { pathname } = useLocation()
+  const isHome = pathname === '/'
+
   return (
     <footer id="contact" className="relative overflow-hidden bg-[#2e3060] text-white">
       {/* decorative */}
@@ -27,12 +39,21 @@ export default function Footer() {
               <Mail className="h-4 w-4" />
               Sakimu99@qq.com
             </a>
-            <a
-              href="#top"
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-8 py-3.5 text-sm font-bold text-white/80 transition-colors hover:border-[#f27dab] hover:text-[#f9b8d2]"
-            >
-              回到顶部
-            </a>
+            {isHome ? (
+              <a
+                href="#top"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 px-8 py-3.5 text-sm font-bold text-white/80 transition-colors hover:border-[#f27dab] hover:text-[#f9b8d2]"
+              >
+                回到顶部
+              </a>
+            ) : (
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 px-8 py-3.5 text-sm font-bold text-white/80 transition-colors hover:border-[#f27dab] hover:text-[#f9b8d2]"
+              >
+                回到首页
+              </Link>
+            )}
           </div>
         </div>
 
@@ -50,12 +71,21 @@ export default function Footer() {
               </div>
             </div>
 
-            <nav className="flex gap-6 text-xs text-white/60">
-              <a href="#services" className="transition-colors hover:text-[#f9b8d2]">服务</a>
-              <a href="#process" className="transition-colors hover:text-[#f9b8d2]">流程</a>
-              <a href="#deposit" className="transition-colors hover:text-[#f9b8d2]">预定</a>
-              <a href="#about" className="transition-colors hover:text-[#f9b8d2]">关于</a>
-              <a href="#faq" className="transition-colors hover:text-[#f9b8d2]">FAQ</a>
+            <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-white/60">
+              {NAV.map((l) =>
+                isHome ? (
+                  <a key={l.hash} href={l.hash} className="transition-colors hover:text-[#f9b8d2]">
+                    {l.label}
+                  </a>
+                ) : (
+                  <Link key={l.hash} to={`/${l.hash}`} className="transition-colors hover:text-[#f9b8d2]">
+                    {l.label}
+                  </Link>
+                ),
+              )}
+              <Link to="/contact" className="transition-colors hover:text-[#f9b8d2]">
+                联系
+              </Link>
             </nav>
           </div>
 
