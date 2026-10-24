@@ -216,7 +216,50 @@ export function createService(ctx) {
 
     const outTradeNo = String(params.out_trade_no ?? '')
     const order = await store.getOrder(outTradeNo)
-    if (!order) return { ok: false, reason: 'order', message: '订单不存在' }
+
+    // 订单不存在，但通知验签已通过（只有支付宝能签出来）：
+    // 说明本地记录丢了（清理误删 / 存储故障）。此时不能丢钱，按通知补录一条订单。
+    if (!order) {
+      const paid = TRADE_SUCCESS.has(String(params.trade_status))
+      if (!paid || Number(params.total_amount) !== Number(config.deposit.amount)) {
+        return { ok: false, reason: 'order', message: '订单不存在（且金额或状态不满足补录条件）' }
+      }
+      const at = nowIso()
+      try {
+        await store.createOrder({
+          out_trade_no: outTradeNo,
+          amount: Number(params.total_amount).toFixed(2),
+          subject: config.deposit.subject,
+          status: STATUS.PAID,
+          pay_method: 'unknown',
+          buyer: {
+            name: '（记录缺失）',
+            contact: '（记录缺失，可向支付宝交易号核对买家）',
+            type: '其他',
+            remark: '订单记录缺失，依据验签通过的异步通知补录',
+          },
+          trade_no: params.trade_no ?? null,
+          paid_at: at,
+          paid_amount: Number(params.total_amount).toFixed(2),
+          last_trade_status: params.trade_status,
+          closed_at: null,
+          refunds: [],
+          events: [
+            {
+              at,
+              type: 'recovered-notify',
+              message: '订单不存在，依据验签通过的异步通知补录（金额/状态已校验）',
+              trade_status: params.trade_status,
+            },
+          ],
+          created_at: at,
+          updated_at: at,
+        })
+        return { ok: true, recovered: true }
+      } catch (error) {
+        return { ok: false, reason: 'order', message: `补录失败：${error.message}` }
+      }
+    }
 
     if (Number(params.total_amount) !== Number(order.amount)) {
       await store.updateOrder(outTradeNo, (current) => {

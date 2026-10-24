@@ -284,6 +284,38 @@ Nginx 反代与 systemd 单元示例见仓库 README 历史版本或直接：
 
 后台选日期 → 点「对账单」拿到 `bill_download_url`，再下载 CSV（账单通常 T+1 生成）。
 
+### 8.6 清理测试订单（禁止整库删除）
+
+曾经为了清测试单把 KV 命名空间整库清空，**误删了一笔 03:34 的真实支付**（金额 5.00，单号 `SM20261025033328F1B4C837`）。
+那笔单后来按 `alipay.trade.query` 的权威数据重建回 KV，但买家姓名/联系方式/需求简述无法恢复——它们从未传给支付宝。
+
+现在统一用脚本，**默认 dry-run，必须 `--only` 限定范围，且默认保护已支付订单**：
+
+```bash
+npm run kv:clean                                  # 只列，不删
+npm run kv:clean -- --only=SM2026102503            # 列出匹配单号前缀的键
+npm run kv:clean -- --only=SM2026102503 --apply    # 真删（已支付订单仍受保护）
+npm run kv:clean -- --only=SM2026102503 --apply --force   # 连已支付一起删（危险）
+```
+
+判定依据是订单 JSON 里的 `status`：`PAID` / `PARTIALLY_REFUNDED` / `REFUNDED` 一律拦截。
+只加 `--apply` 而不加 `--only` 会直接报错退出。
+
+### 8.7 订单记录缺失时的补录
+
+**自动补录**（已在代码里）：异步通知验签通过但订单不存在时，只要 `trade_status` 是成功态、且 `total_amount` 等于配置金额，
+服务端会**自动补录**一条已支付订单（买家字段标「记录缺失」，事件里留 `recovered-notify`），并返回 `success` 停止支付宝重试。
+这样「钱到了但系统里没单」不会再发生。
+
+**手工补录**（历史数据/自动补录也错过了）：拿商户订单号走一遍，再决定是否重建：
+
+```bash
+# 1. 先在商家平台「交易订单」查出商户订单号与交易号
+# 2. 用支付宝权威数据核对
+node -e "const{config}=await import('./server/config.mjs');const a=await import('./shared/alipay-core.js');console.log(await a.tradeQuery(config.alipay,'SM...'))"
+# 3. 写入 KV：order:<单号> 与 idx:<创建时间ISO>:<单号>（idx 需带 metadata）
+```
+
 ### 8.5 数据备份
 
 - 线上：KV 命名空间 `sakimu-orders`。用 `wrangler kv key list/get --remote` 导出，
@@ -323,6 +355,8 @@ Nginx 反代与 systemd 单元示例见仓库 README 历史版本或直接：
 | 退款报「超出可退余额」 | 已退过 | 看后台「已退金额」 |
 | 时间戳报错 | 服务器时区不是东八区 | 无需改时区，代码用 `Asia/Shanghai` 生成 |
 | 页面 404 | 前端路由未回落 | `_routes.json` + `_redirects` 已处理；静态托管需保留两者 |
+| **付款成功但后台没有这单** | ①订单记录被删/存储故障；②notify 未到且页面已关 | 先到商家平台查商户订单号，再用 `alipay.trade.query` 核对，最后按 8.7 补录；新版已支持通知自动补录 |
+| 后台点退款报「订单不存在」 | 该单记录不在 KV（见上一行） | 先补录订单再退款；或直接用支付宝交易号在商家平台退款 |
 | 手机上提示不支持 / 收银台体验差 | 走的是电脑网站支付收银台 | 签约手机网站支付后把 `ALIPAY_MOBILE_METHOD` 设为 `wap` |
 | 手机输入框聚焦时页面被放大 | iOS Safari 对 <16px 输入框自动缩放 | 已用 `text-base sm:text-sm` 规避 |
 | **国内部分网络访问超时** | `sakimu.cn` 解析到 172.67/104.21 段，实测该网络下约 50% 丢包；`*.pages.dev`（172.66 段）正常 | 换网络/代理可复测；若面向国内用户需长期稳定，建议把站点与支付服务迁到国内服务器（`www` 已指向腾讯云 106.53.138.57） |
@@ -336,5 +370,6 @@ Nginx 反代与 systemd 单元示例见仓库 README 历史版本或直接：
 - 线上订单存 KV，最终一致（写入后跨地域读取可能有秒级延迟），不做强事务。
 - 后台是单口令模式，没有多用户与操作审计（`order.events` 记录了本地动作流水）。
 - 未校验支付宝**响应**签名字段（`sign`），仅校验业务 `code`；如需强校验可扩展 `execute()`。
+- 补录出来的订单不含买家姓名与联系方式（这两项从未传给支付宝），只能靠交易号人工核对。
 - 手机网站支付（`alipay.trade.wap.pay`）代码已就绪但**尚未签约**，线上默认走电脑网站支付收银台。
 - 未做应用层限流（Cloudflare 侧可用 WAF Rate Limiting 规则兜底）。

@@ -208,6 +208,42 @@ async function main() {
     })
     check('app_id 不匹配的通知被拒绝', (await wrongAppRes.text()).trim() === 'failure')
 
+
+    console.log('\n【3b】订单缺失时按通知补录（防止丢单丢钱）')
+    const orphanNo = 'SM20260101000000ORPHAN1'
+    const orphan = {
+      ...notify,
+      notify_id: 'selftest-notify-orphan',
+      out_trade_no: orphanNo,
+      trade_no: '2026102522001400000000000099',
+    }
+    delete orphan.sign
+    orphan.sign = crypto.createSign('RSA-SHA256').update(signContent(orphan, true), 'utf8').sign(privateKey, 'base64')
+
+    const orphanRes = await fetch(`${BASE}/api/alipay/notify`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(orphan),
+    })
+    check('未知订单的合法通知返回 success（不丢单）', (await orphanRes.text()).trim() === 'success')
+
+    const orphanOrder = await (await fetch(`${BASE}/api/deposit/orders/${orphanNo}`)).json()
+    check('已补录为已支付', orphanOrder.order?.status === 'PAID', orphanOrder.order)
+    check('补录金额取通知金额', orphanOrder.order?.amount === '5.00', orphanOrder.order?.amount)
+
+    const orphanWrongAmount = { ...orphan, notify_id: 'selftest-notify-orphan-2', out_trade_no: 'SM20260101000000ORPHAN2', total_amount: '0.01' }
+    delete orphanWrongAmount.sign
+    orphanWrongAmount.sign = crypto
+      .createSign('RSA-SHA256')
+      .update(signContent(orphanWrongAmount, true), 'utf8')
+      .sign(privateKey, 'base64')
+    const orphanWrongRes = await fetch(`${BASE}/api/alipay/notify`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(orphanWrongAmount),
+    })
+    check('未知订单且金额不符仍拒绝', (await orphanWrongRes.text()).trim() === 'failure')
+
     console.log('\n【4】后台接口鉴权')
     const denied = await fetch(`${BASE}/api/admin/orders`)
     check('无口令访问后台被拒绝', denied.status === 401, denied.status)
@@ -216,10 +252,10 @@ async function main() {
       headers: { 'x-admin-token': ADMIN_TOKEN },
     })
     const adminBody = await adminRes.json()
-    check('正确口令可读取订单', adminRes.status === 200 && adminBody.orders?.length === 2, adminBody.orders?.length)
+    check('正确口令可读取订单', adminRes.status === 200 && adminBody.orders?.length === 3, adminBody.orders?.length)
     check('列表记录了收银台类型', adminBody.orders?.some((o) => o.pay_method === 'wap'))
-    check('统计显示 1 笔已支付', adminBody.stats?.paid === 1)
-    check('统计金额为 5.00', adminBody.stats?.total_paid_amount === '5.00')
+    check('统计显示 2 笔已支付（原单 + 补录）', adminBody.stats?.paid === 2)
+    check('统计金额为 10.00（5.00 + 补录 5.00）', adminBody.stats?.total_paid_amount === '10.00')
 
     const staticRes = await fetch(`${BASE}/deposit/result`)
     check('SPA 路由可回落到 index.html（未构建时为 503）', [200, 503].includes(staticRes.status), staticRes.status)

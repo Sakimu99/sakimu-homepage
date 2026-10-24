@@ -14,7 +14,8 @@
     "cf:selftest": "node scripts/cf-selftest.mjs",
     "cf:deploy": "wrangler pages deploy dist",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "kv:clean": "node scripts/kv-clean.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
