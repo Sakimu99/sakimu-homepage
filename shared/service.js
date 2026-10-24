@@ -122,21 +122,28 @@ export function createService(ctx) {
       subject: config.deposit.subject,
       // 未配置完成时不要谎称「沙箱调试中」
       sandbox: alipayReady && alipayCfg.env !== 'prod',
+      // 移动端收银台：page = 电脑网站支付（扫码/账户登录），wap = 手机网站支付（唤起 App）
+      mobile_method: config.deposit.mobileMethod ?? 'page',
       projectTypes: PROJECT_TYPES,
       missing: missingFields(),
     }
   }
 
-  async function createDepositOrder(rawInput) {
+  async function createDepositOrder(rawInput, { userAgent = '' } = {}) {
     assertReady()
     const buyer = validateDepositInput(rawInput)
     const outTradeNo = generateOutTradeNo()
+
+    // 手机访问且已签约「手机网站支付」时改走 wap 收银台（自动唤起支付宝 App）
+    const payMethod =
+      core.isMobileUserAgent(userAgent) && config.deposit.mobileMethod === 'wap' ? 'wap' : 'page'
 
     const order = {
       out_trade_no: outTradeNo,
       amount: config.deposit.amount,
       subject: config.deposit.subject,
       status: STATUS.PENDING,
+      pay_method: payMethod,
       buyer,
       trade_no: null,
       paid_at: null,
@@ -146,19 +153,24 @@ export function createService(ctx) {
       created_at: nowIso(),
       updated_at: nowIso(),
     }
-    pushEvent(order, 'created', '定金订单已创建，等待用户支付')
+    pushEvent(order, 'created', `定金订单已创建，等待用户支付（${payMethod}）`)
+
     await store.createOrder(order)
 
-    const pay = await core.buildPagePay({
+    const pay = await core.buildPayForm({
       cfg: alipayCfg,
       outTradeNo,
       totalAmount: order.amount,
       subject: order.subject,
       body: `${buyer.type} · 定金 ${order.amount} 元`,
       timeoutExpress: config.deposit.timeoutExpress,
+      payMethod,
     })
 
-    return { order: publicOrder(order), pay: { gateway: pay.gateway, params: pay.params } }
+    return {
+      order: publicOrder(order),
+      pay: { gateway: pay.gateway, params: pay.params, pay_method: payMethod },
+    }
   }
 
   async function findPublicOrder(outTradeNo) {
@@ -359,6 +371,7 @@ export function createService(ctx) {
       stats: summary,
       orders: orders.map((order) => ({
         ...publicOrder(order),
+        pay_method: order.pay_method ?? 'page',
         buyer: order.buyer,
         refunds: order.refunds ?? [],
         events: order.events ?? [],

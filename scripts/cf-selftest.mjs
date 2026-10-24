@@ -76,6 +76,7 @@ async function main() {
       `ALIPAY_PUBLIC_KEY=${publicB64}`,
       `ADMIN_TOKEN=${ADMIN_TOKEN}`,
       'DEPOSIT_AMOUNT=5.00',
+      'ALIPAY_MOBILE_METHOD=wap',
       '',
     ].join('\n'),
     'utf8',
@@ -100,7 +101,13 @@ async function main() {
     check('支付宝配置被识别为可用', health.alipay_ready === true, health)
     check('定金金额 5.00', health.deposit_amount === '5.00')
 
-    const cfg = await (await fetch(`${BASE}/api/deposit/config`)).json()
+    // 部署后首次访问可能命中上一版部署的缓存 HTML，先预热一次再取数据
+    let cfgRes = await fetch(`${BASE}/api/deposit/config`)
+    if (!(cfgRes.headers.get('content-type') || '').includes('json')) {
+      await new Promise((r) => setTimeout(r, 800))
+      cfgRes = await fetch(`${BASE}/api/deposit/config?cb=${Date.now()}`)
+    }
+    const cfg = await cfgRes.json()
     check('配置接口不泄露密钥', !JSON.stringify(cfg).includes(privateB64.slice(0, 32)))
     check('沙箱标记为 false（生产配置）', cfg.sandbox === false, cfg)
 
@@ -132,6 +139,23 @@ async function main() {
       .update(signContent(payParams, false), 'utf8')
       .verify(publicKey, Buffer.from(payParams.sign, 'base64'))
     check('WebCrypto 生成的签名可验证', payOk)
+
+    console.log('\n【2b】移动端收银台选择')
+    const mobileRes = await fetch(`${BASE}/api/deposit/orders`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'user-agent':
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+      },
+      body: JSON.stringify({ name: '手机客户', contact: '13800001111', type: '小程序', remark: 'cf 移动端自测' }),
+    })
+    const mobileBody = await mobileRes.json()
+    check('手机 UA 下单成功', mobileRes.status === 201, mobileBody)
+    check('手机 UA 走手机网站支付', mobileBody.pay?.pay_method === 'wap', mobileBody.pay?.pay_method)
+    check('wap 接口为 alipay.trade.wap.pay', mobileBody.pay?.params?.method === 'alipay.trade.wap.pay')
+    check('wap 使用 QUICK_WAP_WAY', String(mobileBody.pay?.params?.biz_content).includes('QUICK_WAP_WAY'))
+    check('桌面 UA 仍走电脑网站支付', createdBody.pay?.pay_method === 'page', createdBody.pay?.pay_method)
 
     console.log('\n【3】KV 存储与异步通知')
     const notify = {
@@ -184,10 +208,11 @@ async function main() {
 
     const adminRes = await fetch(`${BASE}/api/admin/orders`, { headers: { 'x-admin-token': ADMIN_TOKEN } })
     const adminBody = await adminRes.json()
-    check('口令正确可读列表', adminRes.status === 200 && adminBody.orders?.length === baseTotal + 1, {
+    check('口令正确可读列表', adminRes.status === 200 && adminBody.orders?.length === baseTotal + 2, {
       got: adminBody.orders?.length,
-      expect: baseTotal + 1,
+      expect: baseTotal + 2,
     })
+    check('列表记录了收银台类型', adminBody.orders?.some((o) => o.pay_method === 'wap'))
     check(
       '统计已支付增量正确',
       adminBody.stats?.paid === basePaid + 1 &&

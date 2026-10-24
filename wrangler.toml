@@ -13,6 +13,9 @@ ALIPAY_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiXVLDddXL4Q7vxl
 DEPOSIT_AMOUNT = "5.00"
 DEPOSIT_SUBJECT = "咲梦工作室 · 项目预定定金"
 DEPOSIT_TIMEOUT = "30m"
+# 移动端收银台：page = 电脑网站支付（手机上显示扫码/账户登录收银台，当前可用）
+#                wap  = 手机网站支付（自动唤起支付宝 App，需先签约「手机网站支付」）
+ALIPAY_MOBILE_METHOD = "page"
 
 # 订单存储：/api/* 的 Pages Functions 通过 env.ORDERS 读写
 [[kv_namespaces]]

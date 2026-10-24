@@ -138,6 +138,17 @@ export async function verifyParams(params, cfg) {
 
 /* ------------------------------ 请求组装 ------------------------------ */
 
+/**
+ * 两种收银台：
+ *  - page：电脑网站支付 alipay.trade.page.pay / FAST_INSTANT_TRADE_PAY
+ *  - wap ：手机网站支付 alipay.trade.wap.pay  / QUICK_WAP_WAY（需签约「手机网站支付」）
+ * 签名规则完全一致，只有 method 与 product_code 不同。
+ */
+export const PAY_METHODS = {
+  page: { method: 'alipay.trade.page.pay', productCode: 'FAST_INSTANT_TRADE_PAY' },
+  wap: { method: 'alipay.trade.wap.pay', productCode: 'QUICK_WAP_WAY' },
+}
+
 export function publicParams(method, cfg) {
   return {
     app_id: cfg.appId,
@@ -151,26 +162,45 @@ export function publicParams(method, cfg) {
 }
 
 /**
- * alipay.trade.page.pay 的请求参数。
- * 返回 gateway + params，由前端/浏览器拼表单提交（避免注入 HTML）。
+ * 生成收银台请求参数（page / wap 通用）。
+ * 返回 gateway + params，由浏览器拼表单提交。
  */
-export async function buildPagePay({ cfg, outTradeNo, totalAmount, subject, body, timeoutExpress }) {
+export async function buildPayForm({
+  cfg,
+  outTradeNo,
+  totalAmount,
+  subject,
+  body,
+  timeoutExpress,
+  payMethod = 'page',
+}) {
+  const spec = PAY_METHODS[payMethod] ?? PAY_METHODS.page
   const bizContent = {
     out_trade_no: outTradeNo,
     total_amount: totalAmount,
     subject,
-    product_code: 'FAST_INSTANT_TRADE_PAY',
+    product_code: spec.productCode,
   }
   if (body) bizContent.body = body
   if (timeoutExpress) bizContent.timeout_express = timeoutExpress
 
-  const params = publicParams('alipay.trade.page.pay', cfg)
+  const params = publicParams(spec.method, cfg)
   params.notify_url = cfg.notifyUrl
   params.return_url = cfg.returnUrl
   params.biz_content = JSON.stringify(bizContent)
   params.sign = await signParams(params, cfg)
 
-  return { gateway: `${cfg.gateway}?charset=utf-8`, params }
+  return { gateway: `${cfg.gateway}?charset=utf-8`, params, payMethod, method: spec.method }
+}
+
+/** 兼容旧调用：等价于 buildPayForm({ payMethod: 'page' }) */
+export function buildPagePay(options) {
+  return buildPayForm({ ...options, payMethod: 'page' })
+}
+
+/** 移动端 UA 判定（够用即可，避免过度细分） */
+export function isMobileUserAgent(userAgent = '') {
+  return /Android|iPhone|iPad|iPod|Windows Phone|Mobile|HarmonyOS|MicroMessenger/i.test(String(userAgent))
 }
 
 /** 网关类接口（form POST + JSON 响应）；code 非 10000 抛 AlipayError */

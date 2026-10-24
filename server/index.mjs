@@ -137,7 +137,9 @@ app.post(
   '/api/deposit/orders',
   rateLimit({ limit: 10, windowMs: 60_000 }),
   asyncRoute(async (req, res) => {
-    const result = await service.createDepositOrder(req.body)
+    const result = await service.createDepositOrder(req.body, {
+      userAgent: req.get('user-agent') ?? '',
+    })
     res.status(201).json({ ok: true, ...result })
   }),
 )

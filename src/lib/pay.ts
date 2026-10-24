@@ -10,6 +10,8 @@ export type DepositConfig = {
   amount: string
   subject: string
   sandbox: boolean
+  /** 移动端收银台：page = 电脑网站支付（扫码/账户登录），wap = 手机网站支付（唤起 App） */
+  mobile_method: 'page' | 'wap'
   projectTypes: string[]
   missing: string[]
 }
@@ -29,6 +31,7 @@ export type DepositOrder = {
 export type AlipayPayRequest = {
   gateway: string
   params: Record<string, string>
+  pay_method?: 'page' | 'wap'
 }
 
 export type CreateOrderResult = {
@@ -112,6 +115,7 @@ export async function fetchDepositConfig(): Promise<DepositConfig> {
       amount: String(data.amount ?? '5.00'),
       subject: String(data.subject ?? '项目预定定金'),
       sandbox: Boolean(data.sandbox),
+      mobile_method: data.mobile_method === 'wap' ? 'wap' : 'page',
       projectTypes: data.projectTypes?.length ? data.projectTypes : FALLBACK_TYPES,
       missing: data.missing ?? [],
     }
@@ -122,6 +126,7 @@ export async function fetchDepositConfig(): Promise<DepositConfig> {
       amount: '5.00',
       subject: '项目预定定金',
       sandbox: false,
+      mobile_method: 'page',
       projectTypes: FALLBACK_TYPES,
       missing: [error instanceof Error ? error.message : '支付服务未连接'],
     }

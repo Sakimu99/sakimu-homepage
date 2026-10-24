@@ -36,7 +36,8 @@ const PERKS = [
 ]
 
 const FIELD =
-  'w-full rounded-2xl border border-pink-100 bg-[#fffafc] px-4 py-3 text-sm text-[#2e3060] outline-none transition-all placeholder:text-[#b8bad8] focus:border-[#f27dab] focus:bg-white focus:ring-4 focus:ring-pink-100'
+  // text-base 起步：iOS Safari 对小于 16px 的输入框会自动放大页面
+  'w-full rounded-2xl border border-pink-100 bg-[#fffafc] px-4 py-3 text-base text-[#2e3060] outline-none transition-all placeholder:text-[#b8bad8] focus:border-[#f27dab] focus:bg-white focus:ring-4 focus:ring-pink-100 sm:text-sm'
 
 const DIALOG_TEXT = [
   '1. 本页支付的是「预定定金」，固定 {{amount}} 元，用于锁定项目档期与需求评估，不是项目总价。',
@@ -55,6 +56,7 @@ export default function Deposit() {
   const [remark, setRemark] = useState('')
   const [agreed, setAgreed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [payMethod, setPayMethod] = useState<'page' | 'wap'>('page')
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -104,6 +106,7 @@ export default function Deposit() {
         type,
         remark: remark.trim(),
       })
+      setPayMethod(result.pay?.pay_method === 'wap' ? 'wap' : 'page')
       submitAlipayForm(result.pay)
     } catch (err) {
       setError(err instanceof Error ? err.message : '创建订单失败，请稍后再试')
@@ -130,37 +133,10 @@ export default function Deposit() {
               定金只有固定 {amount} 元，用来确认你真的想做这个项目、也让我们能把它排进档期。
               付完立刻进入交付队列，开工前随时可退，尾款时全额抵扣。
             </p>
-
-            <div className="mt-9 grid grid-cols-2 gap-3 sm:gap-4">
-              {PERKS.map((perk, index) => (
-                <div
-                  key={perk.title}
-                  className="reveal group rounded-3xl border border-pink-100 bg-gradient-to-b from-white to-[#fff7fa] p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-pink-200/50 sm:p-5"
-                  style={{ ['--reveal-delay' as string]: `${index * 80}ms` }}
-                >
-                  <div className="inline-flex rounded-xl bg-gradient-to-br from-[#f27dab] to-[#8b5fbf] p-2.5 text-white shadow-md shadow-pink-200 transition-transform duration-300 group-hover:scale-110">
-                    <perk.icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="mt-3 text-sm font-bold text-[#2e3060]">{perk.title}</h3>
-                  <p className="mt-1.5 text-[11px] leading-relaxed text-[#8b8fd0] sm:text-xs">
-                    {fill(perk.desc)}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 flex items-start gap-3 rounded-3xl border border-dashed border-pink-200 bg-pink-50/50 p-5">
-              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#e2548f]" />
-              <p className="text-xs leading-relaxed text-[#6b6e9e]">
-                本页面通过
-                <span className="mx-1 font-bold text-[#1677FF]">支付宝电脑网站支付</span>
-                收款，资金由支付宝担保结算。我们不收集、不保存任何银行卡或支付密码信息。
-              </p>
-            </div>
           </div>
 
-          {/* 右侧表单 */}
-          <div className="reveal lg:sticky lg:top-24">
+          {/* 2. 表单：移动端紧跟简介，桌面端固定右列并跨两行 */}
+          <div className="reveal lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1">
             <div className="relative overflow-hidden rounded-[2rem] border border-pink-100 bg-white p-7 shadow-2xl shadow-pink-100/70 md:p-8">
               <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-gradient-to-br from-pink-100 to-purple-100 opacity-70 blur-2xl" />
 
@@ -334,6 +310,38 @@ export default function Deposit() {
               </form>
             </div>
           </div>
+
+          {/* 3. 权益与说明：移动端排在表单之后 */}
+          <div className="reveal lg:col-start-1 lg:row-start-2">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              {PERKS.map((perk, index) => (
+                <div
+                  key={perk.title}
+                  className="group rounded-3xl border border-pink-100 bg-gradient-to-b from-white to-[#fff7fa] p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-pink-200/50 sm:p-5"
+                  style={{ ['--reveal-delay' as string]: `${index * 80}ms` }}
+                >
+                  <div className="inline-flex rounded-xl bg-gradient-to-br from-[#f27dab] to-[#8b5fbf] p-2.5 text-white shadow-md shadow-pink-200 transition-transform duration-300 group-hover:scale-110">
+                    <perk.icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-3 text-sm font-bold text-[#2e3060]">{perk.title}</h3>
+                  <p className="mt-1.5 text-[11px] leading-relaxed text-[#8b8fd0] sm:text-xs">
+                    {fill(perk.desc)}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 flex items-start gap-3 rounded-3xl border border-dashed border-pink-200 bg-pink-50/50 p-5 sm:mt-8">
+              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#e2548f]" />
+              <p className="text-xs leading-relaxed text-[#6b6e9e]">
+                本页面通过
+                <span className="mx-1 font-bold text-[#1677FF]">
+                  支付宝{config?.mobile_method === 'wap' ? '手机网站支付' : '电脑网站支付'}
+                </span>
+                收款，资金由支付宝担保结算。我们不收集、不保存任何银行卡或支付密码信息。
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -341,7 +349,9 @@ export default function Deposit() {
         <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-4 bg-white/80 backdrop-blur-sm">
           <Loader2 className="h-10 w-10 animate-spin text-[#1677FF]" />
           <p className="text-sm font-bold text-[#2e3060]">正在前往支付宝收银台…</p>
-          <p className="text-xs text-[#8b8fd0]">请勿关闭本页面</p>
+          <p className="text-xs text-[#8b8fd0]">
+            {payMethod === 'wap' ? '正在唤起支付宝 App，请稍候' : '正在打开支付宝收银台，请勿关闭页面'}
+          </p>
         </div>
       )}
     </section>

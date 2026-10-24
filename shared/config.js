@@ -46,6 +46,12 @@ export function buildAlipayConfig(env) {
       amount: normalizeAmount(read(env, 'DEPOSIT_AMOUNT', '5.00')),
       subject: read(env, 'DEPOSIT_SUBJECT', '咲梦工作室 · 项目预定定金'),
       timeoutExpress: read(env, 'DEPOSIT_TIMEOUT', '30m'),
+      /**
+       * 移动端用哪个收银台：
+       *  - 'page'：仍用电脑网站支付（手机可见「扫码 + 账户登录」收银台，已可用）
+       *  - 'wap' ：改用手机网站支付，手机自动唤起支付宝 App（需签约「手机网站支付」）
+       */
+      mobileMethod: read(env, 'ALIPAY_MOBILE_METHOD', 'page').toLowerCase() === 'wap' ? 'wap' : 'page',
     },
   }
 }

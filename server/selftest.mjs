@@ -76,6 +76,7 @@ async function main() {
       ADMIN_TOKEN,
       DATA_DIR,
       DEPOSIT_AMOUNT: '5.00',
+      ALIPAY_MOBILE_METHOD: 'wap',
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
@@ -124,6 +125,25 @@ async function main() {
       .update(signContent(payParams, false), 'utf8')
       .verify(publicKey, Buffer.from(payParams.sign, 'base64'))
     check('请求签名可用支付宝公钥验证通过', payOk)
+
+    console.log('\n【2b】移动端收银台选择')
+    check('桌面 UA 走电脑网站支付', createdBody.pay?.pay_method === 'page', createdBody.pay?.pay_method)
+
+    const mobileRes = await fetch(`${BASE}/api/deposit/orders`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'user-agent':
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+      },
+      body: JSON.stringify({ name: '手机客户', contact: '13800001111', type: '小程序', remark: '移动端自测' }),
+    })
+    const mobileBody = await mobileRes.json()
+    check('手机 UA 下单成功', mobileRes.status === 201, mobileBody)
+    check('手机 UA 走手机网站支付', mobileBody.pay?.pay_method === 'wap', mobileBody.pay?.pay_method)
+    check('wap 接口为 alipay.trade.wap.pay', mobileBody.pay?.params?.method === 'alipay.trade.wap.pay')
+    check('wap 使用 QUICK_WAP_WAY', String(mobileBody.pay?.params?.biz_content).includes('QUICK_WAP_WAY'))
+    check('wap 金额同样为服务端固定值', mobileBody.order?.amount === '5.00', mobileBody.order?.amount)
 
     console.log('\n【3】异步通知验签与业务处理')
     const notify = {
@@ -196,7 +216,8 @@ async function main() {
       headers: { 'x-admin-token': ADMIN_TOKEN },
     })
     const adminBody = await adminRes.json()
-    check('正确口令可读取订单', adminRes.status === 200 && adminBody.orders?.length === 1, adminBody)
+    check('正确口令可读取订单', adminRes.status === 200 && adminBody.orders?.length === 2, adminBody.orders?.length)
+    check('列表记录了收银台类型', adminBody.orders?.some((o) => o.pay_method === 'wap'))
     check('统计显示 1 笔已支付', adminBody.stats?.paid === 1)
     check('统计金额为 5.00', adminBody.stats?.total_paid_amount === '5.00')
 

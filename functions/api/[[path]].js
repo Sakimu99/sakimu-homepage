@@ -97,7 +97,9 @@ export async function onRequest(context) {
     if (path === '/api/deposit/orders') {
       if (method !== 'POST') return json({ ok: false, code: 'METHOD_NOT_ALLOWED', message: '请用 POST' }, 405)
       const body = await readJson(request)
-      const result = await service.createDepositOrder(body)
+      const result = await service.createDepositOrder(body, {
+        userAgent: request.headers.get('user-agent') || '',
+      })
       return json({ ok: true, ...result }, 201)
     }
 
