@@ -173,6 +173,7 @@ export async function buildPayForm({
   body,
   timeoutExpress,
   payMethod = 'page',
+  quitUrl,
 }) {
   const spec = PAY_METHODS[payMethod] ?? PAY_METHODS.page
   const bizContent = {
@@ -187,6 +188,8 @@ export async function buildPayForm({
   const params = publicParams(spec.method, cfg)
   params.notify_url = cfg.notifyUrl
   params.return_url = cfg.returnUrl
+  // 手机网站支付支持 quit_url：用户在 H5 收银台点「返回」时回到我们的结果页
+  if (payMethod === 'wap' && quitUrl) params.quit_url = quitUrl
   params.biz_content = JSON.stringify(bizContent)
   params.sign = await signParams(params, cfg)
 

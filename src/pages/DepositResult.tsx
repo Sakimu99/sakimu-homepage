@@ -17,7 +17,7 @@ import {
 import { fetchDepositOrder, syncDepositOrder, type DepositOrder } from '@/lib/pay'
 
 const POLL_INTERVAL = 2500
-const MAX_POLLS = 24
+const MAX_POLLS = 48
 
 function formatTime(iso: string | null) {
   if (!iso) return '—'
@@ -53,6 +53,25 @@ export default function DepositResult() {
       mounted.current = false
     }
   }, [])
+
+  // 手机端从支付宝 App 切回来时，页面可能已暂停轮询，这里立即补一次同步
+  useEffect(() => {
+    if (!outTradeNo) return
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') setReloadKey((key) => key + 1)
+    }
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) setReloadKey((key) => key + 1)
+    }
+
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('pageshow', onPageShow)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('pageshow', onPageShow)
+    }
+  }, [outTradeNo])
 
   useEffect(() => {
     if (!outTradeNo) {

@@ -165,6 +165,11 @@ export function createService(ctx) {
       body: `${buyer.type} · 定金 ${order.amount} 元`,
       timeoutExpress: config.deposit.timeoutExpress,
       payMethod,
+      // 手机上从收银台点「返回」时，回到这笔订单的结果页
+      quitUrl:
+        payMethod === 'wap'
+          ? `${config.baseUrl}/deposit/result?out_trade_no=${encodeURIComponent(outTradeNo)}&status=quit`
+          : undefined,
     })
 
     return {

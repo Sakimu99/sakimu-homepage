@@ -57,7 +57,16 @@ export default function Deposit() {
   const [agreed, setAgreed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [payMethod, setPayMethod] = useState<'page' | 'wap'>('page')
+  const [isMobile, setIsMobile] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const sync = () => setIsMobile(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
 
   useEffect(() => {
     let alive = true
@@ -305,7 +314,11 @@ export default function Deposit() {
                 </button>
 
                 <p className="text-center text-[11px] leading-relaxed text-[#b8bad8]">
-                  支付完成后会跳回本站，订单状态自动确认
+                  {isMobile
+                    ? config?.mobile_method === 'wap'
+                      ? '将自动打开支付宝 App 完成付款，返回后自动确认'
+                      : '将打开支付宝网页收银台，可扫码或登录账户付款'
+                    : '支付完成后会跳回本站，订单状态自动确认'}
                 </p>
               </form>
             </div>

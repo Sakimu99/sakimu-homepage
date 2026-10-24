@@ -155,6 +155,12 @@ async function main() {
     check('手机 UA 走手机网站支付', mobileBody.pay?.pay_method === 'wap', mobileBody.pay?.pay_method)
     check('wap 接口为 alipay.trade.wap.pay', mobileBody.pay?.params?.method === 'alipay.trade.wap.pay')
     check('wap 使用 QUICK_WAP_WAY', String(mobileBody.pay?.params?.biz_content).includes('QUICK_WAP_WAY'))
+    check(
+      'wap 带 quit_url 并指回结果页',
+      String(mobileBody.pay?.params?.quit_url ?? '').includes('/deposit/result?out_trade_no='),
+      mobileBody.pay?.params?.quit_url,
+    )
+    check('电脑网站支付不带 quit_url', createdBody.pay?.params?.quit_url === undefined)
     check('桌面 UA 仍走电脑网站支付', createdBody.pay?.pay_method === 'page', createdBody.pay?.pay_method)
 
     console.log('\n【3】KV 存储与异步通知')
