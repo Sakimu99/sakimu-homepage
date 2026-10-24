@@ -1,6 +1,6 @@
 # 咲梦信息科技工作室 · 官网
 
-咲梦信息科技工作室（SAKIMU TECH STUDIO）的品牌展示首页，外加一条**固定 ¥10 的在线预定定金**支付链路。
+咲梦信息科技工作室（SAKIMU TECH STUDIO）的品牌展示首页，外加一条**固定 ¥5 的在线预定定金**支付链路。
 年轻樱花风（樱花粉 × 蓝紫渐变），单页站点 + 两个轻量子页面（支付结果 / 运营后台）。
 
 - 线上地址：<https://sakimu.cn>（Cloudflare Pages 项目 `sakimu-homepage`，apex 域已代理）
@@ -78,7 +78,7 @@ wrangler pages secret put ADMIN_TOKEN        --project-name sakimu-homepage
 
 ## 在线支付（支付宝电脑网站支付）
 
-- **金额固定 `¥10.00`**，由服务端配置决定，前端传的金额一律忽略。
+- **金额固定 `¥5.00`**，由服务端配置决定，前端传的金额一律忽略。
 - 支付成功以**异步通知 + 主动查询**为准，不依赖同步跳转。
 - 完整接入手册：[`docs/alipay-payment.md`](docs/alipay-payment.md)（签约状态、密钥指纹、KV、沙箱联调、排障表）。
 
@@ -86,7 +86,7 @@ wrangler pages secret put ADMIN_TOKEN        --project-name sakimu-homepage
 
 | 路径 | 作用 |
 | --- | --- |
-| `/#deposit` | 首页「预定定金」区块：填联系方式 → 支付 ¥10 |
+| `/#deposit` | 首页「预定定金」区块：填联系方式 → 支付 ¥5 |
 | `/deposit/result?out_trade_no=…` | 支付结果页，自动轮询 / 主动查询 |
 | `/deposit/admin` | 运营后台：查单、同步、关单、退款、对账下载 |
 

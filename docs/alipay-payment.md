@@ -1,6 +1,6 @@
 # 支付宝电脑网站支付 · 接入与运维手册
 
-咲梦工作室官网「¥10 预定定金」的完整支付链路。对应支付宝开放平台《电脑网站支付》接引：支付、退款、关闭交易、对账下载、异步通知验签。
+咲梦工作室官网「¥5 预定定金」的完整支付链路。对应支付宝开放平台《电脑网站支付》接引：支付、退款、关闭交易、对账下载、异步通知验签。
 
 ## 当前线上状态（2026-10-25 核对）
 
@@ -12,7 +12,7 @@
 | 网关 | `https://openapi.alipay.com/gateway.do` |
 | 站点 | <https://sakimu.cn>（Cloudflare Pages 项目 `sakimu-homepage`，apex 已代理） |
 | 支付后端 | Pages Functions（`functions/api/[[path]].js`）+ KV `sakimu-orders`（`323e71d54f644c789c8eb9e67cfce17f`） |
-| 金额 | 固定 `10.00` 元，服务端配置，前端不可改 |
+| 金额 | 固定 `5.00` 元，服务端配置，前端不可改 |
 | 回执地址 | `https://sakimu.cn/api/alipay/notify`、`https://sakimu.cn/api/alipay/return` |
 | 运营后台 | <https://sakimu.cn/deposit/admin>（口令为 `ADMIN_TOKEN`，见本地 `.env`） |
 
@@ -88,7 +88,7 @@ PUBLIC_BASE_URL = "https://sakimu.cn"
 ALIPAY_ENV = "prod"
 ALIPAY_APP_ID = "2021007103657649"
 ALIPAY_PUBLIC_KEY = "MIIBIjANBg…"      # 支付宝公钥，公开信息
-DEPOSIT_AMOUNT = "10.00"
+DEPOSIT_AMOUNT = "5.00"
 DEPOSIT_SUBJECT = "咲梦工作室 · 项目预定定金"
 DEPOSIT_TIMEOUT = "30m"
 
@@ -119,7 +119,7 @@ wrangler pages secret list  --project-name sakimu-homepage   # 核对
 | `ALIPAY_PUBLIC_KEY` | **是** | 支付宝公钥 |
 | `ALIPAY_SIGN_TYPE` | 否 | 默认 `RSA2` |
 | `ALIPAY_GATEWAY` / `ALIPAY_NOTIFY_URL` / `ALIPAY_RETURN_URL` | 否 | 覆盖默认值 |
-| `DEPOSIT_AMOUNT` | 否 | 定金金额，默认 `10.00` |
+| `DEPOSIT_AMOUNT` | 否 | 定金金额，默认 `5.00` |
 | `DEPOSIT_SUBJECT` | 否 | 订单标题（避免 `/ = &` 等特殊字符） |
 | `DEPOSIT_TIMEOUT` | 否 | 相对超时，默认 `30m`，超时支付宝侧自动关单 |
 
@@ -276,7 +276,7 @@ Nginx 反代与 systemd 单元示例见仓库 README 历史版本或直接：
 - [x] `notify_url` / `return_url` 指向 `https://sakimu.cn/api/alipay/*`，公网可访问
 - [x] Pages 项目环境变量与 Secret 已写入，`/api/health` 返回 `alipay_ready: true`
 - [x] 页面 `/#deposit` 正常渲染，支付按钮可用，无沙箱提示
-- [ ] 真实小额（10 元）支付成功 → 结果页显示已支付（**需要下一笔真实付款验证**）
+- [ ] 真实小额（5 元）支付成功 → 结果页显示已支付（**需要下一笔真实付款验证**）
 - [ ] 后台退款成功，支付宝账单可见
 - [ ] 次日能拿到对账单下载地址
 

@@ -109,7 +109,7 @@ export async function fetchDepositConfig(): Promise<DepositConfig> {
     const data = await request<DepositConfig & { ok: boolean }>('/api/deposit/config')
     return {
       enabled: Boolean(data.enabled),
-      amount: String(data.amount ?? '10.00'),
+      amount: String(data.amount ?? '5.00'),
       subject: String(data.subject ?? '项目预定定金'),
       sandbox: Boolean(data.sandbox),
       projectTypes: data.projectTypes?.length ? data.projectTypes : FALLBACK_TYPES,
@@ -119,7 +119,7 @@ export async function fetchDepositConfig(): Promise<DepositConfig> {
     // 静态托管（无后端）时优雅降级，页面照常展示
     return {
       enabled: false,
-      amount: '10.00',
+      amount: '5.00',
       subject: '项目预定定金',
       sandbox: false,
       projectTypes: FALLBACK_TYPES,

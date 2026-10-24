@@ -30,7 +30,7 @@ import {
 
 const PERKS = [
   { icon: CalendarCheck, title: '锁定档期', desc: '付完定金立刻进入交付队列，优先排期开工。' },
-  { icon: BadgePercent, title: '全额抵扣', desc: '10 元定金在项目尾款中全额抵扣，不多花一分钱。' },
+  { icon: BadgePercent, title: '全额抵扣', desc: '{{amount}} 元定金在项目尾款中全额抵扣，不多花一分钱。' },
   { icon: MessagesSquare, title: '24h 内对接', desc: '专属顾问在 24 小时内联系你，把需求聊清楚。' },
   { icon: Undo2, title: '未开工可退', desc: '正式开工前随时申请原路退款，流程透明。' },
 ]
@@ -39,7 +39,7 @@ const FIELD =
   'w-full rounded-2xl border border-pink-100 bg-[#fffafc] px-4 py-3 text-sm text-[#2e3060] outline-none transition-all placeholder:text-[#b8bad8] focus:border-[#f27dab] focus:bg-white focus:ring-4 focus:ring-pink-100'
 
 const DIALOG_TEXT = [
-  '1. 本页支付的是「预定定金」，固定 10.00 元，用于锁定项目档期与需求评估，不是项目总价。',
+  '1. 本页支付的是「预定定金」，固定 {{amount}} 元，用于锁定项目档期与需求评估，不是项目总价。',
   '2. 定金在正式签约并支付尾款时全额抵扣，抵扣后不多收任何费用。',
   '3. 正式开工前，你可以随时申请退款，款项原路退回支付宝账户，通常 1~3 个工作日到账。',
   '4. 若因需求评估后确认无法承接，定金全额原路退回。',
@@ -69,7 +69,9 @@ export default function Deposit() {
     }
   }, [])
 
-  const amount = config?.amount ?? '10.00'
+  const amount = config?.amount ?? '5.00'
+  /** 文案里的 {{amount}} 统一替换成服务端下发的金额，改金额不用改代码 */
+  const fill = (text: string) => text.replace(/\{\{amount\}\}/g, amount)
   const types = config?.projectTypes ?? ['网站 / 官网', '小程序', '移动 App', 'AI 应用', '管理系统', '其他']
   const disabled = !config || !config.enabled || submitting
 
@@ -140,7 +142,9 @@ export default function Deposit() {
                     <perk.icon className="h-5 w-5" />
                   </div>
                   <h3 className="mt-3 text-sm font-bold text-[#2e3060]">{perk.title}</h3>
-                  <p className="mt-1.5 text-[11px] leading-relaxed text-[#8b8fd0] sm:text-xs">{perk.desc}</p>
+                  <p className="mt-1.5 text-[11px] leading-relaxed text-[#8b8fd0] sm:text-xs">
+                    {fill(perk.desc)}
+                  </p>
                 </div>
               ))}
             </div>
@@ -276,13 +280,13 @@ export default function Deposit() {
                         <DialogHeader>
                           <DialogTitle className="text-[#2e3060]">预定须知</DialogTitle>
                           <DialogDescription className="text-[#8b8fd0]">
-                            关于 10 元定金的几条说明，请先看一眼。
+                            关于 {amount} 元定金的几条说明，请先看一眼。
                           </DialogDescription>
                         </DialogHeader>
                         <ol className="space-y-3 text-sm leading-relaxed text-[#6b6e9e]">
                           {DIALOG_TEXT.map((item) => (
                             <li key={item} className="rounded-2xl bg-[#fff7fa] px-4 py-3">
-                              {item}
+                              {fill(item)}
                             </li>
                           ))}
                         </ol>

@@ -7,7 +7,7 @@ export const PROD_GATEWAY = 'https://openapi.alipay.com/gateway.do'
 export const SANDBOX_GATEWAY = 'https://openapi-sandbox.dl.alipaydev.com/gateway.do'
 
 /** 金额统一两位小数，非法值回落 */
-export function normalizeAmount(input, fallback = '10.00') {
+export function normalizeAmount(input, fallback = '5.00') {
   const value = Number(input)
   if (!Number.isFinite(value) || value <= 0) return fallback
   return Math.min(value, 99999999).toFixed(2)
@@ -43,7 +43,7 @@ export function buildAlipayConfig(env) {
       returnUrl: read(env, 'ALIPAY_RETURN_URL') || `${baseUrl}/api/alipay/return`,
     },
     deposit: {
-      amount: normalizeAmount(read(env, 'DEPOSIT_AMOUNT', '10.00')),
+      amount: normalizeAmount(read(env, 'DEPOSIT_AMOUNT', '5.00')),
       subject: read(env, 'DEPOSIT_SUBJECT', '咲梦工作室 · 项目预定定金'),
       timeoutExpress: read(env, 'DEPOSIT_TIMEOUT', '30m'),
     },

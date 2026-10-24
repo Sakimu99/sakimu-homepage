@@ -75,7 +75,7 @@ async function main() {
       `ALIPAY_PRIVATE_KEY=${privateB64}`,
       `ALIPAY_PUBLIC_KEY=${publicB64}`,
       `ADMIN_TOKEN=${ADMIN_TOKEN}`,
-      'DEPOSIT_AMOUNT=10.00',
+      'DEPOSIT_AMOUNT=5.00',
       '',
     ].join('\n'),
     'utf8',
@@ -98,7 +98,7 @@ async function main() {
     check('health 可用', health.ok === true, health)
     check('运行在 Cloudflare Pages Functions', health.runtime === 'cloudflare-pages', health)
     check('支付宝配置被识别为可用', health.alipay_ready === true, health)
-    check('定金金额 10.00', health.deposit_amount === '10.00')
+    check('定金金额 5.00', health.deposit_amount === '5.00')
 
     const cfg = await (await fetch(`${BASE}/api/deposit/config`)).json()
     check('配置接口不泄露密钥', !JSON.stringify(cfg).includes(privateB64.slice(0, 32)))
@@ -122,7 +122,7 @@ async function main() {
     check('下单返回 201', created.status === 201, createdBody)
     const outTradeNo = createdBody.order?.out_trade_no
     check('生成订单号', typeof outTradeNo === 'string' && outTradeNo.startsWith('SM'), outTradeNo)
-    check('忽略前端金额', createdBody.order?.amount === '10.00', createdBody.order?.amount)
+    check('忽略前端金额', createdBody.order?.amount === '5.00', createdBody.order?.amount)
 
     const payParams = createdBody.pay?.params ?? {}
     check('含 FAST_INSTANT_TRADE_PAY', String(payParams.biz_content).includes('FAST_INSTANT_TRADE_PAY'))
@@ -145,7 +145,7 @@ async function main() {
       trade_no: '2026102522001400000000000002',
       out_trade_no: outTradeNo,
       trade_status: 'TRADE_SUCCESS',
-      total_amount: '10.00',
+      total_amount: '5.00',
       seller_id: '2088000000000000',
       buyer_id: '2088000000000001',
     }
@@ -191,7 +191,7 @@ async function main() {
     check(
       '统计已支付增量正确',
       adminBody.stats?.paid === basePaid + 1 &&
-        adminBody.stats?.total_paid_amount === (baseAmount + 10).toFixed(2),
+        adminBody.stats?.total_paid_amount === (baseAmount + 5).toFixed(2),
       adminBody.stats,
     )
 

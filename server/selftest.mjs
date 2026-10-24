@@ -75,7 +75,7 @@ async function main() {
       ALIPAY_PUBLIC_KEY: publicB64,
       ADMIN_TOKEN,
       DATA_DIR,
-      DEPOSIT_AMOUNT: '10.00',
+      DEPOSIT_AMOUNT: '5.00',
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
@@ -89,11 +89,11 @@ async function main() {
     console.log('\n【1】服务与配置')
     check('健康检查通过', health.ok === true)
     check('支付宝配置被识别为可用', health.alipay_ready === true, health)
-    check('定金金额为 10.00', health.deposit_amount === '10.00', health.deposit_amount)
+    check('定金金额为 5.00', health.deposit_amount === '5.00', health.deposit_amount)
 
     const cfg = await (await fetch(`${BASE}/api/deposit/config`)).json()
     check('配置接口不泄露密钥', !JSON.stringify(cfg).includes(privateB64.slice(0, 32)))
-    check('配置接口返回固定金额', cfg.amount === '10.00')
+    check('配置接口返回固定金额', cfg.amount === '5.00')
 
     console.log('\n【2】下单（alipay.trade.page.pay 表单）')
     const created = await fetch(`${BASE}/api/deposit/orders`, {
@@ -111,7 +111,7 @@ async function main() {
     check('下单返回 201', created.status === 201, createdBody)
     const outTradeNo = createdBody.order?.out_trade_no
     check('生成商户订单号', typeof outTradeNo === 'string' && outTradeNo.startsWith('SM'), outTradeNo)
-    check('服务端忽略前端传入的金额', createdBody.order?.amount === '10.00', createdBody.order?.amount)
+    check('服务端忽略前端传入的金额', createdBody.order?.amount === '5.00', createdBody.order?.amount)
 
     const payParams = createdBody.pay?.params ?? {}
     check('表单含 product_code', payParams.biz_content?.includes('FAST_INSTANT_TRADE_PAY'))
@@ -137,7 +137,7 @@ async function main() {
       trade_no: '2026102522001400000000000001',
       out_trade_no: outTradeNo,
       trade_status: 'TRADE_SUCCESS',
-      total_amount: '10.00',
+      total_amount: '5.00',
       seller_id: '2088000000000000',
       buyer_id: '2088000000000001',
     }
@@ -198,7 +198,7 @@ async function main() {
     const adminBody = await adminRes.json()
     check('正确口令可读取订单', adminRes.status === 200 && adminBody.orders?.length === 1, adminBody)
     check('统计显示 1 笔已支付', adminBody.stats?.paid === 1)
-    check('统计金额为 10.00', adminBody.stats?.total_paid_amount === '10.00')
+    check('统计金额为 5.00', adminBody.stats?.total_paid_amount === '5.00')
 
     const staticRes = await fetch(`${BASE}/deposit/result`)
     check('SPA 路由可回落到 index.html（未构建时为 503）', [200, 503].includes(staticRes.status), staticRes.status)
