@@ -31,3 +31,6 @@ data/
 .dev.vars.*
 .wrangler/
 .playwright-mcp/
+# 临时脚本
+_*.mjs
+_*.ps1
