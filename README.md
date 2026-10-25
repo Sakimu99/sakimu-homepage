@@ -90,6 +90,10 @@ wrangler pages secret put ADMIN_TOKEN        --project-name sakimu-homepage
 | 路径 | 作用 |
 | --- | --- |
 | `/#deposit` | 首页「预定定金」区块：填联系方式 → 支付 ¥5 |
+| `/services` | **服务与报价**：六类服务的价格、工期、交付物、附加项与报价规则 |
+| `/cases` | 案例与交付样例 |
+| `/pay?no=SM…` | 站内订单支付页：商品行、订单号、金额、条款勾选、去支付宝支付 |
+| `/legal/terms` `/legal/privacy` `/legal/refund` | 服务条款 / 隐私政策 / 退款政策 |
 | `/contact` | 联系我们二级页：邮件通道、¥5 定金入口、回复时效、材料清单、流程与 FAQ 速览 |
 | `/deposit/result?out_trade_no=…` | 支付结果页，自动轮询 / 主动查询 |
 | `/deposit/admin` | 运营后台：查单、同步、关单、退款、对账下载 |

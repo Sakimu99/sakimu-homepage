@@ -1,5 +1,18 @@
 import { Link, useLocation } from 'react-router'
 import { Flower2, Mail } from 'lucide-react'
+import { COMPANY } from '@/data/legal'
+
+const PAGE_LINKS = [
+  { to: '/services', label: '服务与报价' },
+  { to: '/cases', label: '案例' },
+  { to: '/contact', label: '联系我们' },
+]
+
+const LEGAL = [
+  { to: '/legal/terms', label: '服务条款' },
+  { to: '/legal/privacy', label: '隐私政策' },
+  { to: '/legal/refund', label: '退款政策' },
+]
 
 const NAV = [
   { hash: '#services', label: '服务' },
@@ -54,6 +67,58 @@ export default function Footer() {
                 回到首页
               </Link>
             )}
+          </div>
+        </div>
+
+        {/* 经营信息：主体 / 服务 / 条款 */}
+        <div className="mt-16 grid gap-8 border-t border-white/10 pt-10 text-xs sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <div className="text-[11px] font-bold tracking-[0.2em] text-[#f9b8d2]">服务</div>
+            <ul className="mt-3 space-y-2 text-white/60">
+              {PAGE_LINKS.map((item) => (
+                <li key={item.to}>
+                  <Link to={item.to} className="transition-colors hover:text-[#f9b8d2]">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link to="/#deposit" className="transition-colors hover:text-[#f9b8d2]">
+                  预定定金 ¥5
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <div className="text-[11px] font-bold tracking-[0.2em] text-[#f9b8d2]">条款</div>
+            <ul className="mt-3 space-y-2 text-white/60">
+              {LEGAL.map((item) => (
+                <li key={item.to}>
+                  <Link to={item.to} className="transition-colors hover:text-[#f9b8d2]">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="sm:col-span-2">
+            <div className="text-[11px] font-bold tracking-[0.2em] text-[#f9b8d2]">经营主体</div>
+            <ul className="mt-3 space-y-2 leading-relaxed text-white/60">
+              <li>{COMPANY.fullName}</li>
+              <li>{COMPANY.city}</li>
+              <li>
+                邮箱{' '}
+                <a href={`mailto:${COMPANY.email}`} className="transition-colors hover:text-[#f9b8d2]">
+                  {COMPANY.email}
+                </a>
+              </li>
+              <li className="text-white/40">
+                本站在售服务与报价见 <Link to="/services" className="underline decoration-white/30 hover:text-[#f9b8d2]">服务与报价</Link>，
+                在线支付由支付宝提供担保交易。
+              </li>
+            </ul>
           </div>
         </div>
 

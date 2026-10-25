@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import type { FormEvent } from 'react'
 import {
   BadgePercent,
@@ -24,7 +25,6 @@ import {
 import {
   createDepositOrder,
   fetchDepositConfig,
-  submitAlipayForm,
   type DepositConfig,
 } from '@/lib/pay'
 
@@ -49,6 +49,7 @@ const DIALOG_TEXT = [
 ]
 
 export default function Deposit() {
+  const navigate = useNavigate()
   const [config, setConfig] = useState<DepositConfig | null>(null)
   const [name, setName] = useState('')
   const [contact, setContact] = useState('')
@@ -116,7 +117,13 @@ export default function Deposit() {
         remark: remark.trim(),
       })
       setPayMethod(result.pay?.pay_method === 'wap' ? 'wap' : 'page')
-      submitAlipayForm(result.pay)
+      // 支付参数只对本次订单有效，存到 sessionStorage 后进站内支付页确认
+      try {
+        sessionStorage.setItem(`sakimu.pay.${result.order.out_trade_no}`, JSON.stringify(result.pay))
+      } catch {
+        /* 隐私模式下可能不可用，支付页会提示重新下单 */
+      }
+      navigate(`/pay?no=${encodeURIComponent(result.order.out_trade_no)}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : '创建订单失败，请稍后再试')
       setSubmitting(false)

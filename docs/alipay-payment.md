@@ -2,6 +2,7 @@
 
 咲梦工作室官网「¥5 预定定金」的完整支付链路。对应支付宝开放平台《电脑网站支付》接引：支付、退款、关闭交易、对账下载、异步通知验签。
 
+> 手机网站支付提交审核的材料与经营内容要求，见 [`site-content-for-audit.md`](site-content-for-audit.md)。
 > 从零接入（建应用、配密钥、签约、签名规则、验收）请看 [`alipay-integration-manual.md`](alipay-integration-manual.md)；
 > 本文只讲本项目的现状、配置与运维。
 
